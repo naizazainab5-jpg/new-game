@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chef Detective: 100 Levels of Sabotage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink: #442a18;
+      --wood-dark: #6e4125;
+      --carved-gold: #f4a261;
+      --carved-shadow: #853f12;
+      --chili: #d90429;
+      --leaf: #2a9d8f;
+      --font-cute: 'Fredoka', cursive, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-cute);
+      color: var(--ink);
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 30%, #a46a40 0%, #4a240d 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+      overflow-x: hidden;
+    }
+
+    .game-viewport {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    /* TOP WOODEN HUD */
+    .top-wood-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fdf6ec;
+      border: 3.5px solid var(--ink);
+      border-radius: 20px;
+      padding: 8px 16px;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.25);
+    }
+
+    .level-badge {
+      font-size: 1.15rem;
+      font-weight: 800;
+      background: #ffb703;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      padding: 4px 12px;
+      box-shadow: 0 2px 0 var(--ink);
+    }
+
+    .currency-capsule {
+      background: #fff;
+      border: 2.5px solid var(--ink);
+      border-radius: 30px;
+      padding: 4px 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lives-display {
+      font-size: 1.25rem;
+      color: var(--chili);
+      letter-spacing: 2px;
+    }
+
+    /* TIMER PROGRESS BAR */
+    .timer-wrap {
+      width: 100%;
+      height: 14px;
+      background: #e2d3c2;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #2a9d8f, #f4a261, #d90429);
+      transition: width 0.1s linear;
+    }
+
+    /* MAIN RECIPE CARD */
+    .book-wrapper {
+      position: relative;
+      background: #fff8eb;
+      border: 5px solid var(--ink);
+      border-radius: 26px;
+      box-shadow: 0 10px 0 #3d1f0c, 0 16px 20px rgba(0,0,0,0.4);
+      padding: 22px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    /* CHALLENGE BANNER */
+    .challenge-tag {
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 4px 16px;
+      border: 2.5px solid var(--ink);
+      border-radius: 14px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 0 var(--ink);
+      text-transform: uppercase;
+    }
+    .challenge-tag.normal { background: #ffd166; color: var(--ink); }
+    .challenge-tag.boss { background: var(--chili); color: #fff; animation: pulse 0.5s infinite alternate; }
+    .challenge-tag.speed { background: #06d6a0; color: #fff; }
+    .challenge-tag.steam { background: #a2d2ff; color: var(--ink); }
+    .challenge-tag.scramble { background: #c77dff; color: #fff; }
+
+    /* DISH HERO */
+    .dish-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 8px 0 18px;
+    }
+
+    .hero-avatar {
+      font-size: 4.8rem;
+      background: #fff;
+      border: 4px solid var(--ink);
+      border-radius: 50%;
+      width: 110px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .hero-title {
+      font-size: 1.65rem;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .instruction-label {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #9c6644;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* INGREDIENTS GRID */
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+    }
+
+    .ingredient-slot {
+      background: #fffdf5;
+      border: 3.5px solid var(--ink);
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 0 var(--ink);
+      cursor: pointer;
+      transition: all 0.1s ease;
+      min-height: 80px;
+      user-select: none;
+    }
+
+    .ingredient-slot:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 0 var(--ink);
+      background: #fff9e6;
+    }
+
+    .ingredient-slot:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 var(--ink);
+    }
+
+    .slot-label {
+      font-size: 1.1rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    /* CHALLENGE MODIFIERS */
+    /* 1. Kitchen Steam Blur */
+    .ingredient-slot.blurred .slot-label {
+      filter: blur(5px);
+      transition: filter 0.2s ease;
+    }
+    .ingredient-slot.blurred:hover .slot-label {
+      filter: blur(0);
+    }
+
+    /* SUCCESS & BUSTED ANIMATIONS */
+    .ingredient-slot.busted {
+      background: #ffccd5 !important;
+      border-color: #d90429 !important;
+      color: #d90429 !important;
+      box-shadow: 0 4px 0 #d90429 !important;
+      animation: stamp 0.3s cubic-bezier(0.2, 1.8, 0.4, 1) both;
+    }
+
+    .ingredient-slot.wrong-pick {
+      background: #ffd6a5 !important;
+      animation: shake 0.35s ease;
+    }
+
+    /* SUCCESS DISH POPUP OVERLAY */
+    .success-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 248, 235, 0.95);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      animation: popIn 0.25s ease;
+    }
+    .success-overlay .pop-emoji { font-size: 5rem; animation: float 1s infinite alternate ease-in-out; }
+    .success-overlay h2 { font-size: 1.8rem; color: #2a9d8f; margin-top: 8px; }
+    .success-overlay p { font-size: 1rem; color: var(--ink); font-weight: 700; }
+
+    @keyframes popIn { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes stamp { 0% { transform: scale(2); } 100% { transform: scale(1); } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    @keyframes pulse { from { opacity: 0.8; } to { opacity: 1; } }
+    @keyframes float { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+  </style>
+</head>
+<body>
+
+  <div class="game-viewport">
+
+    <!-- TOP BAR -->
+    <header class="top-wood-bar">
+      <div class="level-badge" id="level-display">LEVEL 1 / 100</div>
+
+      <div class="currency-capsule">
+        <span>🪙</span>
+        <span id="gold-val">0</span>
+      </div>
+
+      <div class="lives-display" id="lives-val">♥♥♥</div>
+    </header>
+
+    <!-- COUNTDOWN TIMER BAR -->
+    <div class="timer-wrap">
+      <div id="timer-bar" class="timer-bar"></div>
+    </div>
+
+    <!-- MAIN GAME CARD -->
+    <main class="book-wrapper" id="card-wrapper">
+      
+      <!-- CHALLENGE BADGE (Changes every 5 levels) -->
+      <div id="challenge-badge" class="challenge-tag normal">CLASSIC INVESTIGATION</div>
+
+      <!-- DISH AVATAR & NAME -->
+      <div class="dish-hero">
+        <div class="hero-avatar" id="hero-img">🎂</div>
+        <h2 class="hero-title" id="hero-name">Strawberry Cake</h2>
+      </div>
+
+      <div class="instruction-label">TAP THE ONE INGREDIENT THAT DOES NOT BELONG!</div>
+
+      <!-- 4 INGREDIENT BUTTONS -->
+      <div class="slots-grid" id="slots-container">
+        <!-- Generated automatically -->
+      </div>
+
+      <!-- AUTO SUCCESS OVERLAY -->
+      <div id="success-overlay" class="success-overlay" style="display: none;">
+        <div class="pop-emoji" id="pop-emoji">🎂</div>
+        <h2>COOKED TO PERFECTION!</h2>
+        <p id="pop-sub">+100 Coins • Advancing to Next Level...</p>
+      </div>
+      
+
+    </main>
+
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. DIVERSE FOOD DATABASE (100% SCALABLE)
+    // ==========================================
+    const FOOD_DATABASE = [
+      { name: "Strawberry Shortcake", emoji: "🎂", real: ["Flour", "Fresh Cream", "Strawberries"], imposter: "Garlic" },
+      { name: "Stone-baked Pizza", emoji: "🍕", real: ["Dough", "Tomato Sauce", "Mozzarella"], imposter: "Chocolate" },
+      { name: "Kerala Parotta", emoji: "🫓", real: ["Maida Flour", "Coconut Oil", "Egg Batter"], imposter: "Basmati Rice" },
+      { name: "Tokyo Ramen", emoji: "🍜", real: ["Wheat Noodles", "Pork Broth", "Soft Boiled Egg"], imposter: "Maple Syrup" },
+      { name: "Brown Sugar Boba", emoji: "🧋", real: ["Black Tea", "Tapioca Pearls", "Fresh Milk"], imposter: "Chilli Sauce" },
+      { name: "Italian Carbonara", emoji: "🍝", real: ["Spaghetti", "Egg Yolks", "Pecorino Cheese"], imposter: "Heavy Cream" },
+      { name: "Mexican Guacamole", emoji: "🥑", real: ["Fresh Avocado", "Lime Juice", "Cilantro"], imposter: "Mayonnaise" },
+      { name: "American Cheeseburger", emoji: "🍔", real: ["Beef Patty", "Cheddar Cheese", "Burger Bun"], imposter: "Strawberry Jam" },
+      { name: "French Croissant", emoji: "🥐", real: ["Puff Pastry", "Butter", "Yeast"], imposter: "Mustard" },
+      { name: "South Indian Sambar", emoji: "🍲", real: ["Toor Dal", "Tamarind", "Curry Leaves"], imposter: "Heavy Cream" },
+      { name: "Crispy Fish & Chips", emoji: "🍟", real: ["Fried Cod", "Potato Fries", "Tartar Sauce"], imposter: "Custard" },
+      { name: "Tacos Al Pastor", emoji: "🌮", real: ["Corn Tortilla", "Spiced Pork", "Pineapple"], imposter: "Marshmallows" },
+      { name: "Hot Chocolate", emoji: "☕", real: ["Whole Milk", "Cocoa Powder", "Cane Sugar"], imposter: "Soy Sauce" },
+      { name: "Apple Pie", emoji: "🥧", real: ["Flaky Crust", "Spiced Apples", "Brown Butter"], imposter: "Fish Sauce" },
+      { name: "Japanese Sushi Roll", emoji: "🍣", real: ["Sushi Rice", "Fresh Salmon", "Nori Seaweed"], imposter: "Cinnamon" },
+      { name: "Caesar Salad", emoji: "🥗", real: ["Romaine Lettuce", "Parmesan", "Croutons"], imposter: "Wasabi" },
+      { name: "Fluffy Pancakes", emoji: "🥞", real: ["Flour Batter", "Maple Syrup", "Melted Butter"], imposter: "Ketchup" },
+      { name: "Palada Payasam", emoji: "🥣", real: ["Milk", "Rice Ada", "Cardamom"], imposter: "Vinegar" },
+      { name: "Chicken Biryani", emoji: "🍗", real: ["Basmati Rice", "Whole Spices", "Fried Onions"], imposter: "Peanut Butter" },
+      { name: "French Onion Soup", emoji: "🍲", real: ["Caramelized Onions", "Beef Broth", "Gruyere Cheese"], imposter: "Gummy Bears" }
+    ];
+
+    // ==========================================
+    // 2. RETRO SOUND FX (WEB AUDIO)
+    // ==========================================
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+      playWin() {
+        this.init();
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(f, t + i * 0.07);
+          gain.gain.setValueAtTime(0.2, t + i * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + i * 0.07 + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + i * 0.07);
+          osc.stop(t + i * 0.07 + 0.3);
+        });
+      }
+      playWrong() {
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(140, t);
+        osc.frequency.linearRampToValueAtTime(60, t + 0.3);
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.3);
+      }
+    }
+    const sfx = new SoundFX();
+
+    // ==========================================
+    // 3. GAME STATE & 1-100 SYSTEM
+    // ==========================================
+    let level = Number(localStorage.getItem("chefLevel")) || 1;
+    let gold = Number(localStorage.getItem("chefGold")) || 0;
+    let lives = 3;
+    let timer = null;
+    let timeLeft = 15;
+    let currentFood = null;
+    let isTransitioning = false;
+
+    function saveState() {
+      localStorage.setItem("chefLevel", level);
+      localStorage.setItem("chefGold", gold);
+    }
+
+    function scrambleWord(word) {
+      return word.split('').sort(() => Math.random() - 0.5).join('');
+    }
+
+    // ==========================================
+    // 4. LOAD LEVEL (PROCEDURAL LEVEL 1 - 100)
+    // ==========================================
+    function loadLevel() {
+      isTransitioning = false;
+      document.getElementById("success-overlay").style.display = "none";
+      document.getElementById("level-display").textContent = `LEVEL ${level} / 100`;
+      document.getElementById("gold-val").textContent = gold;
+      document.getElementById("lives-val").textContent = "♥".repeat(Math.max(lives, 0));
+
+      // Calculate Challenge Modifier every 5 levels
+      const challengeTag = document.getElementById("challenge-badge");
+      let timeLimit = Math.max(15 - Math.floor(level / 8), 5); // Speeds up as you climb
+      let isSteam = false;
+      let isScramble = false;
+
+      if (level % 5 === 0) {
+        challengeTag.className = "challenge-tag boss";
+        challengeTag.textContent = `👑 LEVEL ${level} BOSS BATTLE!`;
+        timeLimit = 7;
+      } else if (level % 5 === 1) {
+        challengeTag.className = "challenge-tag normal";
+        challengeTag.textContent = "CLASSIC INVESTIGATION";
+      } else if (level % 5 === 2) {
+        challengeTag.className = "challenge-tag speed";
+        challengeTag.textContent = "⚡ SPEED RUSH (FAST TIMER)";
+        timeLimit = 6;
+      } else if (level % 5 === 3) {
+        challengeTag.className = "challenge-tag steam";
+        challengeTag.textContent = "🌫️ KITCHEN STEAM (HOVER TO REVEAL)";
+        isSteam = true;
+      } else if (level % 5 === 4) {
+        challengeTag.className = "challenge-tag scramble";
+        challengeTag.textContent = "🌀 ANAGRAM (SCRAMBLED WORDS)";
+        isScramble = true;
+      }
+
+      // Pick food (cycles through database)
+      currentFood = FOOD_DATABASE[(level - 1) % FOOD_DATABASE.length];
+      document.getElementById("hero-img").textContent = currentFood.emoji;
+      document.getElementById("hero-name").textContent = currentFood.name;
+
+      // Mix 3 real ingredients + 1 imposter
+      const options = [
+        ...currentFood.real.map(name => ({ text: name, isImposter: false })),
+        { text: currentFood.imposter, isImposter: true }
+      ].sort(() => Math.random() - 0.5);
+
+      const container = document.getElementById("slots-container");
+      container.innerHTML = "";
+
+      options.forEach(opt => {
+        const btn = document.createElement("div");
+        btn.className = `ingredient-slot ${isSteam ? "blurred" : ""}`;
+        
+        let labelText = opt.text;
+        if (isScramble) labelText = scrambleWord(opt.text);
+
+        btn.innerHTML = `<span class="slot-label">${labelText}</span>`;
+        btn.addEventListener("click", () => handleChoice(opt, btn));
+        container.appendChild(btn);
+      });
+
+      startCountdown(timeLimit);
+    }
+
+    // ==========================================
+    // 5. TIMER MANAGEMENT
+    // ==========================================
+    function startCountdown(seconds) {
+      clearInterval(timer);
+      timeLeft = seconds;
+      const totalTime = seconds;
+      const bar = document.getElementById("timer-bar");
+      bar.style.width = "100%";
+
+      timer = setInterval(() => {
+        timeLeft -= 0.1;
+        const pct = Math.max(0, (timeLeft / totalTime) * 100);
+        bar.style.width = `${pct}%`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          handleTimeout();
+        }
+      }, 100);
+    }
+
+    // ==========================================
+    // 6. AUTOMATED GAME ACTION (1-TAP & NEXT)
+    // ==========================================
+    function handleChoice(option, element) {
+      if (isTransitioning) return;
+
+      if (option.isImposter) {
+        // CORRECT: Caught the imposter!
+        isTransitioning = true;
+        clearInterval(timer);
+        sfx.playWin();
+
+        element.classList.add("busted");
+        element.innerHTML = `<span class="slot-label">🚫 BUSTED!</span>`;
+
+        // Earn Gold & Advance
+        gold += 100;
+        saveState();
+
+        // Show Instant Victory Animation
+        const overlay = document.getElementById("success-overlay");
+        document.getElementById("pop-emoji").textContent = currentFood.emoji;
+        document.getElementById("pop-sub").textContent = `+100 Coins • Advancing to Level ${level + 1}...`;
+        overlay.style.display = "flex";
+
+        // AUTOMATIC ADVANCE AFTER 0.9s
+        setTimeout(() => {
+          if (level < 100) {
+            level++;
+            saveState();
+            loadLevel();
+          } else {
+            alert("🏆 CONGRATULATIONS! YOU HAVE COMPLETED ALL 100 LEVELS!");
+            level = 1;
+            saveState();
+            loadLevel();
+          }
+        }, 900);
+
+      } else {
+        // WRONG: Accused real ingredient
+        sfx.playWrong();
+        element.classList.add("wrong-pick");
+        lives--;
+        document.getElementById("lives-val").textContent = "♥".repeat(Math.max(lives, 0));
+
+        if (lives <= 0) {
+          clearInterval(timer);
+          isTransitioning = true;
+          alert(`💥 Game Over! You ran out of chef lives on Level ${level}. Restarting from Level 1!`);
+          level = 1;
+          lives = 3;
+          saveState();
+          loadLevel();
+        }
+      }
+    }
+
+    function handleTimeout() {
+      if (isTransitioning) return;
+      sfx.playWrong();
+      lives--;
+      document.getElementById("lives-val").textContent = "♥".repeat(Math.max(lives, 0));
+
+      if (lives <= 0) {
+        alert(`⏰ Time's up! Game over on Level ${level}. Restarting from Level 1!`);
+        level = 1;
+        lives = 3;
+        saveState();
+        loadLevel();
+      } else {
+        alert("⏰ Time's up! Try this level again!");
+        loadLevel();
+      }
+    }
+
+    // Start on load
+    loadLevel();
+  </script>
+</body>
+</html>

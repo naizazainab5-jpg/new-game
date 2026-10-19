@@ -1,0 +1,481 @@
+/* ===================================================
+   FOOD IMPOSTER - ARCADE DETECTIVE THEME
+   =================================================== */
+
+:root {
+  --bg-desk: #fdf6ec;
+  --bg-pattern: #ebd8c3;
+  --ink: #1e1b18;
+  
+  /* Vibrant Arcade Colors */
+  --turmeric: #ffb703;
+  --accent-orange: #fb8500;
+  --leaf: #06d6a0;
+  --leaf-dark: #059669;
+  --chili: #ef476f;
+  --chili-dark: #d90429;
+  --detective-blue: #118ab2;
+  --paper: #ffffff;
+  
+  --display: "Archivo Black", Impact, sans-serif;
+  --body: "Work Sans", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden], .hidden { display: none !important; }
+
+html, body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--body);
+  color: var(--ink);
+  line-height: 1.5;
+  background-color: var(--bg-desk);
+  /* Cute retro diner / detective halftone dot grid */
+  background-image: radial-gradient(var(--bg-pattern) 2px, transparent 2px);
+  background-size: 26px 26px;
+  overflow-x: hidden;
+}
+
+/* Confetti overlay canvas */
+#fx-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.screen { display: none; }
+.screen.active { 
+  display: block; 
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Typography & Badges ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--turmeric);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--ink);
+  margin-bottom: 12px;
+}
+
+.title {
+  font-family: var(--display);
+  font-size: clamp(3.2rem, 11vw, 5.8rem);
+  line-height: 0.95;
+  margin: 8px 0 16px;
+  letter-spacing: -0.02em;
+  color: var(--chili-dark);
+  text-shadow: 4px 4px 0 var(--ink);
+  -webkit-text-stroke: 1.5px var(--ink);
+}
+
+.title.small { 
+  font-size: clamp(2.4rem, 8vw, 3.8rem); 
+  color: var(--detective-blue);
+}
+
+.lead { 
+  max-width: 54ch; 
+  font-size: 1.2rem; 
+  font-weight: 500;
+  color: #3f3933;
+  margin: 0 0 24px; 
+}
+
+/* ---------- Buttons (Juicy 3D Comic Look) ---------- */
+.btn {
+  font: 700 1.1rem var(--body);
+  padding: 14px 28px;
+  border: 3.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 14px;
+  margin-right: 12px;
+  margin-bottom: 10px;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ink);
+  background: #fffdf5;
+}
+
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.btn.primary {
+  background: var(--turmeric);
+  color: var(--ink);
+}
+.btn.primary:hover {
+  background: #ffc32b;
+}
+
+:focus-visible { 
+  outline: 4px solid var(--turmeric); 
+  outline-offset: 3px; 
+}
+
+/* ---------- Start & End Rule Cards ---------- */
+.rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 0 0 26px;
+}
+
+.rules p {
+  margin: 0;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  padding: 10px 18px;
+  box-shadow: 4px 4px 0 var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.rules strong {
+  font-family: var(--display);
+  font-size: 1.6rem;
+  color: var(--accent-orange);
+  margin-right: 4px;
+}
+
+.pack {
+  display: inline-block;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.pack select {
+  display: block;
+  margin-top: 8px;
+  font: 600 1.05rem var(--body);
+  padding: 12px 16px;
+  border: 3.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: 4px 4px 0 var(--ink);
+  min-width: 260px;
+  cursor: pointer;
+}
+
+.best {
+  margin-top: 24px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.best span {
+  color: var(--chili-dark);
+  font-family: var(--display);
+  font-size: 1.3rem;
+}
+
+/* ---------- HUD (Heads-Up Display) ---------- */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--paper);
+  border: 3.5px solid var(--ink);
+  border-radius: 16px;
+  padding: 12px 20px;
+  font-weight: 700;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hud-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #7c7267;
+}
+
+.hud-item span:last-child {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  color: var(--ink);
+}
+
+#hud-lives {
+  color: var(--chili);
+  letter-spacing: 4px;
+  font-size: 1.5rem !important;
+}
+
+/* Streak Fire Glow */
+.fever-mode #hud-streak {
+  color: var(--accent-orange) !important;
+  animation: flameGlow 0.8s infinite alternate ease-in-out;
+}
+@keyframes flameGlow {
+  from { transform: scale(1); text-shadow: 0 0 4px var(--turmeric); }
+  to { transform: scale(1.2); text-shadow: 0 0 12px var(--chili); }
+}
+
+/* Dynamic Sizzling Timer */
+.timer {
+  height: 16px;
+  background: #e2d3c2;
+  border: 3.5px solid var(--ink);
+  border-radius: 12px;
+  margin: 18px 0 0;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+#timer-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--leaf) 0%, var(--turmeric) 70%, var(--chili) 100%);
+  transform-origin: left center;
+  transition: transform 0.05s linear;
+}
+
+#timer-fill.low {
+  background: var(--chili);
+  animation: pulseBar 0.3s infinite alternate ease-in-out;
+}
+@keyframes pulseBar {
+  from { opacity: 0.8; filter: brightness(1); }
+  to { opacity: 1; filter: brightness(1.3); }
+}
+
+/* ---------- Case / Dish Title ---------- */
+.case {
+  background: var(--paper);
+  border: 3.5px solid var(--ink);
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin: 24px 0 20px;
+  box-shadow: 6px 6px 0 var(--ink);
+  position: relative;
+}
+
+.case-label {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--detective-blue);
+}
+
+.case h2 {
+  font-family: var(--display);
+  font-size: clamp(2.2rem, 7vw, 3.2rem);
+  line-height: 1.05;
+  margin: 4px 0;
+  color: var(--ink);
+}
+
+.case-sub {
+  margin: 0 0 8px;
+  font-weight: 600;
+  color: #63584e;
+}
+
+.prompt {
+  font-weight: 800;
+  font-size: 1.15rem;
+  margin: 8px 0 0;
+  color: var(--accent-orange);
+}
+
+/* ---------- Lineup Cards (4 Suspects) ---------- */
+.lineup {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.suspect {
+  position: relative;
+  font: inherit;
+  text-align: left;
+  background: var(--paper);
+  color: var(--ink);
+  border: 3.5px solid var(--ink);
+  border-radius: 16px;
+  padding: 18px 16px;
+  min-height: 160px;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.suspect:hover:not(:disabled) {
+  transform: translate(-3px, -3px) rotate(-1deg);
+  box-shadow: 8px 8px 0 var(--ink);
+  background: #fffdf2;
+}
+
+.suspect:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.suspect:disabled { cursor: default; }
+
+.suspect .num {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  background: var(--turmeric);
+  color: var(--ink);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.suspect .name {
+  font-weight: 800;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  margin-top: 10px;
+}
+
+.suspect .tag {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+/* Correct card that truly belongs */
+.suspect.belongs {
+  background: #e6faf4;
+  border-color: var(--leaf-dark);
+  box-shadow: 4px 4px 0 var(--leaf-dark);
+}
+.suspect.belongs .tag { color: var(--leaf-dark); }
+
+/* The Imposter Card */
+.suspect.imposter {
+  background: #ffe5ec;
+  border-color: var(--chili-dark);
+  box-shadow: 4px 4px 0 var(--chili-dark);
+}
+.suspect.imposter .tag { color: var(--chili-dark); }
+
+/* DRAMATIC BUSTED STAMP SLAM */
+.suspect.imposter::after {
+  content: "BUSTED!";
+  position: absolute;
+  right: 6px;
+  bottom: 8px;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  color: var(--chili-dark);
+  border: 4px solid var(--chili-dark);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 3px 10px;
+  border-radius: 8px;
+  transform: rotate(-12deg);
+  box-shadow: 0 0 10px rgba(239, 71, 111, 0.4);
+  animation: stampSlam 0.35s cubic-bezier(0.2, 1.8, 0.4, 1) both;
+}
+
+@keyframes stampSlam {
+  0% { transform: rotate(-12deg) scale(3.5); opacity: 0; }
+  60% { transform: rotate(-12deg) scale(0.9); opacity: 1; }
+  100% { transform: rotate(-12deg) scale(1); opacity: 1; }
+}
+
+.suspect.picked-wrong {
+  border-color: var(--chili-dark);
+  background: #fff0f3;
+  animation: shake 0.4s ease;
+}
+
+/* Screen Shake Effect */
+body.shake {
+  animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes screenShake {
+  10%, 90% { transform: translate3d(-3px, 0, 0); }
+  20%, 80% { transform: translate3d(5px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+/* ---------- Feedback Box ---------- */
+.feedback {
+  margin-top: 24px;
+  background: var(--paper);
+  border: 3.5px solid var(--ink);
+  border-radius: 16px;
+  padding: 18px 24px;
+  box-shadow: 5px 5px 0 var(--ink);
+  min-height: 90px;
+}
+
+#feedback-text {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+#feedback-text.good { color: var(--leaf-dark); }
+#feedback-text.bad { color: var(--chili-dark); }
+
+.hint {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #796c5f;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .lineup { grid-template-columns: repeat(2, 1fr); }
+  .suspect { min-height: 140px; }
+  .hint { display: none; }
+}
